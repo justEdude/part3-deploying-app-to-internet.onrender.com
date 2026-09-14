@@ -1,0 +1,107 @@
+const express = require('express')
+const cors = require('cors')
+const app = express()
+
+let corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200 
+}
+
+let notes = [
+    {
+        id: "1",
+        content: "HTML is easy",
+        important: "true"
+    },
+    {
+        id: "2",
+        content: "Browser can only execute JavaScript",
+        important:false
+    },
+    {
+        id: "3",
+        content: "GET and POST are the most important methods of http protocol",
+        important: true
+    }
+]
+
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+} 
+
+app.use(express.json())
+app.use(express.static(`dist`))
+app.use(requestLogger)
+
+const generateId = () => {
+     const maxId = notes.length > 0
+    ? Math.max(...notes.map(n => Number(n.id)))
+    : 0
+    return String(maxId+1)
+}
+
+app.post('/api/notes', cors(corsOptions), (request, response)=> {
+    const body = request.body
+
+    if(!body.content){
+        return response.status(400).json({
+            error: "content Missing"
+        })
+    }
+
+    const note = {
+        content: body.content,
+        important: body.content || false,
+        id: generateId()
+    }
+    notes.concat(note)
+    response.json(note)
+})
+
+app.get('/', cors(corsOptions), (request, response) => {
+    response.send('<h1>Hello World</h1>')
+})
+
+app.get('/api/notes', cors(corsOptions), (request, response)=> {
+    response.json(notes)
+})
+/* We can define parameters for routes in Express by using the colon syntax:
+ the route below will handle all HTTP GET requests that are of the form /api/notes/SOMETHING, 
+ where SOMETHING is an arbitrary string.
+*/
+ app.get('/api/notes/:id', cors(corsOptions), (request, response)=>{
+    const id = request.params.id
+    const note = notes.find(note => note.id === id)
+    
+    if(note){
+        response.json(note)
+    }else{
+        /* it's possible to give a clue about the reason for sending a 404 error 
+        by overriding the default NOT FOUND message */
+        response.statusMessage = `note ${id} does not exist`
+        response.status(404).end()
+    }
+})
+
+app.delete('/api/notes/:id', cors(corsOptions), (request, response)=> {
+    const id = request.params.id
+    notes = notes.filter(note => note.id !== id)
+    
+    response.status(204).end()
+})
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT || 3001
+app.listen(PORT, ()=> {
+console.log(`server running on port ${PORT}`);
+})
+
