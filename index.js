@@ -3,7 +3,7 @@ const cors = require('cors')
 const app = express()
 
 let corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'https://part3-deploying-app-to-internet-onrender.onrender.com',
   optionsSuccessStatus: 200 
 }
 
