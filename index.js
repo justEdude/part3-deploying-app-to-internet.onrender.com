@@ -1,11 +1,5 @@
 const express = require('express')
-const cors = require('cors')
 const app = express()
-
-let corsOptions = {
-  origin: 'https://part3-deploying-app-to-internet-onrender.onrender.com',
-  optionsSuccessStatus: 200 
-}
 
 let notes = [
     {
@@ -44,7 +38,7 @@ const generateId = () => {
     return String(maxId+1)
 }
 
-app.post('/api/notes', cors(corsOptions), (request, response)=> {
+app.post('/api/notes', (request, response)=> {
     const body = request.body
 
     if(!body.content){
@@ -58,22 +52,22 @@ app.post('/api/notes', cors(corsOptions), (request, response)=> {
         important: body.content || false,
         id: generateId()
     }
-    notes.concat(note)
+    notes = notes.concat(note)
     response.json(note)
 })
 
-app.get('/', cors(corsOptions), (request, response) => {
+app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
 })
 
-app.get('/api/notes', cors(corsOptions), (request, response)=> {
+app.get('/api/notes', (request, response)=> {
     response.json(notes)
 })
 /* We can define parameters for routes in Express by using the colon syntax:
  the route below will handle all HTTP GET requests that are of the form /api/notes/SOMETHING, 
  where SOMETHING is an arbitrary string.
 */
- app.get('/api/notes/:id', cors(corsOptions), (request, response)=>{
+ app.get('/api/notes/:id', (request, response)=>{
     const id = request.params.id
     const note = notes.find(note => note.id === id)
     
@@ -87,7 +81,7 @@ app.get('/api/notes', cors(corsOptions), (request, response)=> {
     }
 })
 
-app.delete('/api/notes/:id', cors(corsOptions), (request, response)=> {
+app.delete('/api/notes/:id', (request, response)=> {
     const id = request.params.id
     notes = notes.filter(note => note.id !== id)
     
