@@ -8,10 +8,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build:ui": "shx rm -rf dist && cd ../part2-communicating-with-server && npm run build && shx cp -r dist ../Part3-Programming-a-server-with-NodeJS-and-Express",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
     "start": "node index.js",
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Danton",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "shx": "^0.4.0"
+  }
 }
